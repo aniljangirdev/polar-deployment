@@ -15,6 +15,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://polar-postgres:5432/polardb_catalog
       - SPRING_PROFILES_ACTIVE=testData
 
+  # Backing Services
   polar-postgres:
     image: "postgres:14.4"
     container_name: "polar-postgres"
@@ -23,4 +24,6 @@ services:
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=polardb_catalog
+    #      - POSTGRES_DB=polardb_catalog
+    volumes:
+      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
