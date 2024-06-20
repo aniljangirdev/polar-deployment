@@ -1,8 +1,11 @@
 version: "3.8"
 services:
+
+  # Catalog service
   catalog-service:
     depends_on:
       - polar-postgres
+      - config-server
     image: "catalog-service"
     container_name: "catalog-service"
     ports:
@@ -14,6 +17,34 @@ services:
       - BPL_DEBUG_PORT=8001
       - SPRING_DATASOURCE_URL=jdbc:postgresql://polar-postgres:5432/polardb_catalog
       - SPRING_PROFILES_ACTIVE=testData
+      - SPRING_CLOUD_CONFIG_URI=http://config-service:8888
+
+  # Catalog service
+  order-service:
+    depends_on:
+      - polar-postgres
+      - config-server
+    image: "order-service"
+    container_name: "order-service"
+    ports:
+      - 9002:9002
+      - 8002:8002
+    environment:
+      - BPL_JVM_THREAD_COUNT=50
+      - BPL_DEBUG_ENABLED=true
+      - BPL_DEBUG_PORT=8001
+      - POLAR_CATALOG_SERVICE_URI=http://localhost:9001/
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:8888
+      - SPRING_R2DBC_URL=j2dbc:postgresql://polar-postgres:5432/polardb_order
+      - SPRING_FLYWAY_URL=jdbc:postgresql://polar-postgres:5432/polardb_order
+
+  # Config service
+  config-server:
+    image: "config-server"
+    container_name: "config-server"
+    ports:
+      - 8888:8888
+      - 9888:9888
 
   # Backing Services
   polar-postgres:
